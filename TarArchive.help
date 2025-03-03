@@ -1,0 +1,8 @@
+## To create a .tar.gz archive from a folder do:
+- tar -czvf archive.tar.gz folder
+
+## To compress one or more file
+- tar -czvf archive.tar.gz file1 file2 ...
+
+## To extract a .tar.gz archive do:
+- tar -xvf archive.tar.gz
