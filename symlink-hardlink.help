@@ -1,0 +1,21 @@
+# Symlink vs Hardlink
+
+# A hardlink points directly to an inode.
+- fx. you have a file and you create a hardlink to that.
+  You are actually pointing directly to the underlying inode for that file
+- A filename is actually a pointer to an inode. When you create a hardlink you are making a copy of the pointer (the filename)
+- A hardlink can only refer to files on the same filesystem. A hardlink cannot reference data on a removable disk
+- A hardlink cannot refer to directories
+- A hardlink to a program or script can be use to start the program/script exactly as the originals. 
+
+# A symlink points to another name in the file system.
+- fx. you could point to a folder or file
+- A symlink can refer to files on different filesystems. For example it can refer to files on a removable disk or network drive.
+- Symlinks are often use for quick access where you don't want to write the whole path.
+- A symlink can reference directories 
+- Create a symlink (-s for symlink)
+--- ln -s -T "Target" "Linkname"
+
+
+# Inodes
+- An inode is a reference file that stores the location of data. - As long as you have a filename or hardlink that points to the inode, it will exist. Only when all pointers to the inode is deleted will the inode, and the data, be deleted. 
