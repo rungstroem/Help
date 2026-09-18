@@ -1,0 +1,66 @@
+
+### ExFat limitations
+ExFAT itself has no concept of Unix/Linux file ownership, groups, or POSIX permissions.
+
+exFAT stores filesystem metadata such as:
+* File name
+* Size
+* Timestamps
+* Attributes (read-only, hidden, system, archive)
+* Directory structure
+
+It does not store:
+* UID (owner)
+* GID (group)
+* Read/write/execute permissions
+* POSIX ACLs
+* Linux capabilities
+
+What happens with files on an exFat filesystem on Linux?
+The Linux exFAT driver has to synthesize Unix ownership and permissions when mounting the filesystem. 
+--- That is it sets ownership and permissions to the user mounting the filesystem
+--- and sets permissions to read/write for that user, and read for other user
+
+You can control these with mount options such as:
+* sudo mount -t exfat /dev/sdb1 /mnt/exfat -o uid=1000,gid=1000,fmask=113,dmask=002
+
+For example, this can make files appear as:
+-rw-rw-r-- 1 alice users 12345 Sep 17 20:00 file.txt
+--- Remember the alice ownership isn't actually stored in the exFAT filesystem.
+
+If you unmount it and mount the same drive elsewhere, you can specify a different uid/gid 
+and the files will appear to belong to someone else.
+
+### ExFat practicality
+If the requirement is that the drive should be natively readable and writable by Windows, macOS, and Linux without installing filesystem drivers/software
+exFAT is the most practical choice.
+
+If you're backing up Linux and macOS files, exFAT can't faithfully preserve all the metadata those systems may care about.
+For example, the following cannot be backed up, as exfat doesn't store that information
+* on Linux:
+--- owner/group
+--- rwx permissions
+--- ACLs
+--- extended attributes
+--- symbolic links
+--- hard links
+
+* on macOS:
+--- owner/group
+--- POSIX permissions
+--- ACLs
+--- extended attributes
+--- resource forks
+--- Finder metadata
+
+ExFAT is excellent for just copy files normally, where you don't particularly care if foo.txt comes back with the exact original UID/GID.
+
+ExFAT alone isn't sufficient if you'd want backup software that packages/preserves the metadata, or use a filesystem native to the source OS.
+
+### Preserve metadata (permissions and ownership) on linux files on exfat filesystem
+If filesystem is a large external backup drive. Make separate backup containers/archives for Linux and macOS.
+
+For example, on Linux create a tar archive:
+tar --xattrs --acls --preserve-permissions -cpf linux-backup.tar /home
+--- The exFAT filesystem doesn't understand the ownership information, but the tar archive does. 
+--- You can therefore store the archive on an exFAT disk while retaining the Linux metadata inside it.
